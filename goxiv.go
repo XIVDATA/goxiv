@@ -6,5 +6,5 @@ import (
 )
 
 func ScrapeCharacter(id int64) character.Character {
-	return controller.ScrapeCharacter(10477093)
+	return controller.ScrapeCharacter(id)
 }
