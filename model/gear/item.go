@@ -4,6 +4,7 @@ type Item struct {
 	ID          int64 `json:",omitempty"`
 	Name        string
 	Mirage      string   `json:",omitempty"`
+	MirageID    string   `json:",omitempty"`
 	Crafter     int64    `json:",omitempty"`
 	CrafterName string   `json:",omitempty"`
 	CrafterURL  string   `json:",omitempty"`
@@ -13,6 +14,7 @@ type Item struct {
 	Materia4    *Materia `json:",omitempty"`
 	Materia5    *Materia `json:",omitempty"`
 	Color       string   `json:",omitempty"`
+	ColorID     string   `json:",omitempty"`
 	Slot        string
 	HQ          bool
 }
