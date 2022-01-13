@@ -2,6 +2,7 @@ package gear
 
 type GearSet struct {
 	Class       string
+	ClassID     int64
 	MainHand    Item `json:",omitempty"`
 	OffHand     Item `json:",omitempty"`
 	Head        Item `json:",omitempty"`
