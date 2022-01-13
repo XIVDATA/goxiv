@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/google/martian/log"
 	"github.com/sirupsen/logrus"
 	"github.com/xivdata/goxiv/model"
 
@@ -120,33 +121,39 @@ func CharacterClassSpecialistHandler(data *character.Character) (string, func(e 
 			exp := e.DOM.SiblingsFiltered("div.character__job__exp").Text()
 			work := BeforeLast(exp, " /")
 			var class character.Class
-			if work == "--" {
+			if work == "--" && (strings.Contains(e.Text, "Blue Mage") || level == "90") {
 				class.Max = true
 				class.Name = e.Text
 				if strings.Contains(e.Text, "Blue Mage") {
 					class.Level = 70
 					class.Name = "Blue Mage"
 				} else {
-					class.Level = 80
+					class.Level = 90
 				}
 			} else {
-				tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
-				if err != nil {
-					logrus.Error("Error while parsing EXP")
+				work := utils.BeforeLast(exp, " /")
+				if work != "--" {
+					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
+					if err != nil {
+						log.Error("Error while parsing EXP ", work, data.ID)
+					}
+					class.Exp = tempexp
+				} else {
+					class.Exp = 0
 				}
 				class.Max = false
 				templevel, err := strconv.ParseInt(level, 10, 64)
 				if err != nil {
-					logrus.Error("Error while parsing level")
+					log.Error("Error while parsing level")
 				}
 				class.Level = templevel
-				class.Exp = tempexp
 				if strings.Contains(e.Text, "Blue Mage") {
 					class.Name = "Blue Mage"
 				} else {
 					class.Name = e.Text
 				}
 			}
+			class.Specialist = true
 			data.Classes = append(data.Classes, class)
 		}
 	}
@@ -160,33 +167,39 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 			exp := e.DOM.SiblingsFiltered("div.character__job__exp").Text()
 			work := BeforeLast(exp, " /")
 			var class character.Class
-			if work == "--" {
+			if work == "--" && (strings.Contains(e.Text, "Blue Mage") || level == "90") {
 				class.Max = true
 				class.Name = e.Text
 				if strings.Contains(e.Text, "Blue Mage") {
 					class.Level = 70
 					class.Name = "Blue Mage"
 				} else {
-					class.Level = 80
+					class.Level = 90
 				}
 			} else {
-				tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
-				if err != nil {
-					logrus.Error("Error while parsing EXP")
+				work := utils.BeforeLast(exp, " /")
+				if work != "--" {
+					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
+					if err != nil {
+						log.Error("Error while parsing EXP ", work, data.ID)
+					}
+					class.Exp = tempexp
+				} else {
+					class.Exp = 0
 				}
 				class.Max = false
 				templevel, err := strconv.ParseInt(level, 10, 64)
 				if err != nil {
-					logrus.Error("Error while parsing level")
+					log.Error("Error while parsing level")
 				}
 				class.Level = templevel
-				class.Exp = tempexp
 				if strings.Contains(e.Text, "Blue Mage") {
 					class.Name = "Blue Mage"
 				} else {
 					class.Name = e.Text
 				}
 			}
+			class.Specialist = false
 			data.Classes = append(data.Classes, class)
 		}
 	}
