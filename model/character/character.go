@@ -19,11 +19,17 @@ type Character struct {
 	FreeCompanyURL  string        `json:",omitempty"`
 	Grandcompany    *GrandCompany `json:",omitempty"`
 	Citystate       string
+	CitystateID     int64 `json:",omitempty"`
 	Guardian        string
+	GuardianID      int64 `json:",omitempty"`
 	Nameday         string
+	NamedayID       int64 `json:",omitempty"`
 	Tribe           string
+	TribeID         int64 `json:",omitempty"`
 	Sex             string
+	SexID           int64 `json:",omitempty"`
 	Race            string
+	RaceID          int64   `json:",omitempty"`
 	Bozja           *Bozja  `json:",omitempty"`
 	Bio             string  `json:",omitempty"`
 	Eureka          *Eureka `json:",omitempty"`
