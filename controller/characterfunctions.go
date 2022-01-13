@@ -198,7 +198,7 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 					class.Name = e.Text
 				}
 			}
-			class.Specialist = true
+			class.Specialist = false
 			data.Classes = append(data.Classes, class)
 		}
 	}
