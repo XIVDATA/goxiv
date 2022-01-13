@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/google/martian/log"
 	"github.com/sirupsen/logrus"
 	"github.com/xivdata/goxiv/model"
 
@@ -131,11 +130,11 @@ func CharacterClassSpecialistHandler(data *character.Character) (string, func(e 
 					class.Level = 90
 				}
 			} else {
-				work := utils.BeforeLast(exp, " /")
+				work := BeforeLast(exp, " /")
 				if work != "--" {
 					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
 					if err != nil {
-						log.Error("Error while parsing EXP ", work, data.ID)
+						logrus.Error("Error while parsing EXP ", work, data.ID)
 					}
 					class.Exp = tempexp
 				} else {
@@ -144,7 +143,7 @@ func CharacterClassSpecialistHandler(data *character.Character) (string, func(e 
 				class.Max = false
 				templevel, err := strconv.ParseInt(level, 10, 64)
 				if err != nil {
-					log.Error("Error while parsing level")
+					logrus.Error("Error while parsing level")
 				}
 				class.Level = templevel
 				if strings.Contains(e.Text, "Blue Mage") {
@@ -177,11 +176,11 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 					class.Level = 90
 				}
 			} else {
-				work := utils.BeforeLast(exp, " /")
+				work := BeforeLast(exp, " /")
 				if work != "--" {
 					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
 					if err != nil {
-						log.Error("Error while parsing EXP ", work, data.ID)
+						logrus.Error("Error while parsing EXP ", work, data.ID)
 					}
 					class.Exp = tempexp
 				} else {
@@ -190,7 +189,7 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 				class.Max = false
 				templevel, err := strconv.ParseInt(level, 10, 64)
 				if err != nil {
-					log.Error("Error while parsing level")
+					logrus.Error("Error while parsing level")
 				}
 				class.Level = templevel
 				if strings.Contains(e.Text, "Blue Mage") {
@@ -199,7 +198,7 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 					class.Name = e.Text
 				}
 			}
-			class.Specialist = false
+			class.Specialist = true
 			data.Classes = append(data.Classes, class)
 		}
 	}
