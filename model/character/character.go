@@ -2,6 +2,7 @@ package character
 
 import (
 	"github.com/xivdata/goxiv/model"
+	"github.com/xivdata/goxiv/model/freecompany"
 	"github.com/xivdata/goxiv/model/gear"
 )
 
@@ -14,30 +15,31 @@ type Character struct {
 	Minions      []Minion      `json:",omitempty"`
 	Classes      []Class
 	// FreeCompany  *freecompany.FreeCompany
-	FreeCompanyID   uint64        `json:",omitempty"`
-	FreeCompanyName string        `json:",omitempty"`
-	FreeCompanyURL  string        `json:",omitempty"`
-	Grandcompany    *GrandCompany `json:",omitempty"`
-	Citystate       string
-	CitystateID     int64 `json:",omitempty"`
-	Guardian        string
-	GuardianID      int64 `json:",omitempty"`
-	Nameday         string
-	NamedayID       int64 `json:",omitempty"`
-	Tribe           string
-	TribeID         int64 `json:",omitempty"`
-	Sex             string
-	SexID           int64 `json:",omitempty"`
-	Race            string
-	RaceID          int64   `json:",omitempty"`
-	Bozja           *Bozja  `json:",omitempty"`
-	Bio             string  `json:",omitempty"`
-	Eureka          *Eureka `json:",omitempty"`
-	Title           string  `json:",omitempty"`
-	TitleID         int64   `json:",omitempty"`
-	Friends         []*Friend
-	Gearset         gear.GearSet
-	PvPTeam         *PvPTeam `json:",omitempty"`
-	Avatar          string
-	Face            string
+	FreeCompanyID    uint64             `json:",omitempty"`
+	FreeCompanyName  string             `json:",omitempty"`
+	FreeCompanyURL   string             `json:",omitempty"`
+	FreeCompanyCrest *freecompany.Crest `json:",omitempty"`
+	Grandcompany     *GrandCompany      `json:",omitempty"`
+	Citystate        string
+	CitystateID      int64 `json:",omitempty"`
+	Guardian         string
+	GuardianID       int64 `json:",omitempty"`
+	Nameday          string
+	NamedayID        int64 `json:",omitempty"`
+	Tribe            string
+	TribeID          int64 `json:",omitempty"`
+	Sex              string
+	SexID            int64 `json:",omitempty"`
+	Race             string
+	RaceID           int64   `json:",omitempty"`
+	Bozja            *Bozja  `json:",omitempty"`
+	Bio              string  `json:",omitempty"`
+	Eureka           *Eureka `json:",omitempty"`
+	Title            string  `json:",omitempty"`
+	TitleID          int64   `json:",omitempty"`
+	Friends          []*Friend
+	Gearset          gear.GearSet
+	PvPTeam          *PvPTeam `json:",omitempty"`
+	Avatar           string
+	Face             string
 }

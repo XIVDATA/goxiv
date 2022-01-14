@@ -6,11 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/xivdata/goxiv/model"
 
 	"github.com/xivdata/goxiv/model/character"
+	"github.com/xivdata/goxiv/model/freecompany"
 )
 
 func CharacterNameHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
@@ -322,6 +324,25 @@ func CharacterFriendHandler(data *character.Character) (string, func(e *colly.HT
 
 }
 
+func CharacterFreecompanyCrestHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+	return "div.character__freecompany__crest__image", func(e *colly.HTMLElement) {
+		data.FreeCompanyCrest = &freecompany.Crest{}
+		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
+			v, _ := s.Attr("src")
+			v = strings.ReplaceAll(v, "40x40", "64x64")
+			switch i {
+			case 0:
+				data.FreeCompanyCrest.Top = v
+			case 1:
+				data.FreeCompanyCrest.Middle = v
+			case 2:
+				data.FreeCompanyCrest.Bottom = v
+			}
+
+		})
+	}
+}
+
 func CharacterHandlers() []func(data *character.Character) (string, func(e *colly.HTMLElement)) {
-	return []func(data *character.Character) (string, func(e *colly.HTMLElement)){CharacterGearsetClassHandler, CharacterPvPTeamHandler, CharacterAvatarHandler, CharacterGearsetOffhandHandler, CharacterGearsetHeadHandler, CharacterGearsetBodyHandler, CharacterGearsetHandsHandler, CharacterGearsetWaistHandler, CharacterGearsetLegsHandler, CharacterGearsetFeetHandler, CharacterGearsetEarringHandler, CharacterGearsetNecklaceHandler, CharacterGearsetRing1Handler, CharacterGearsetSoulCrystalHandler, CharacterGearsetRing2Handler, CharacterGearsetBraceletsHandler, CharacterGearsetMainhandHandler, CharacterAvatarFaceHandler, CharacterNameHandler, CharacterFriendHandler, CharacterAchievementHandler, CharacterTitleHandler, CharacterServerDatacenterHandler, CharacterFreecompanyHandler, CharacterGrandcompanyHandler, CharacterBioHandler, CharacterTraitHandler, CharacterCitystageHandler, CharacterNamedayHandler, CharacterGuardianHandler, CharacterEurekaHandler, CharacterBozjaHandler, CharacterClassHandler, CharacterMountHandler, CharacterMinionHandler, CharacterClassSpecialistHandler}
+	return []func(data *character.Character) (string, func(e *colly.HTMLElement)){CharacterFreecompanyCrestHandler, CharacterGearsetClassHandler, CharacterPvPTeamHandler, CharacterAvatarHandler, CharacterGearsetOffhandHandler, CharacterGearsetHeadHandler, CharacterGearsetBodyHandler, CharacterGearsetHandsHandler, CharacterGearsetWaistHandler, CharacterGearsetLegsHandler, CharacterGearsetFeetHandler, CharacterGearsetEarringHandler, CharacterGearsetNecklaceHandler, CharacterGearsetRing1Handler, CharacterGearsetSoulCrystalHandler, CharacterGearsetRing2Handler, CharacterGearsetBraceletsHandler, CharacterGearsetMainhandHandler, CharacterAvatarFaceHandler, CharacterNameHandler, CharacterFriendHandler, CharacterAchievementHandler, CharacterTitleHandler, CharacterServerDatacenterHandler, CharacterFreecompanyHandler, CharacterGrandcompanyHandler, CharacterBioHandler, CharacterTraitHandler, CharacterCitystageHandler, CharacterNamedayHandler, CharacterGuardianHandler, CharacterEurekaHandler, CharacterBozjaHandler, CharacterClassHandler, CharacterMountHandler, CharacterMinionHandler, CharacterClassSpecialistHandler}
 }
