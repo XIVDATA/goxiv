@@ -16,14 +16,14 @@ const (
 	LEADERICON = "https://img.finalfantasyxiv.com/lds/h/Z/W5a6yeRyN2eYiaV-AGU7mJKEhs.png"
 )
 
-func FreecompanyNameHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyNameHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__text__name`, func(e *colly.HTMLElement) {
 		data.Name = e.Text
 
 	}
 
 }
-func FreecompanyServerHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyServerHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.entry__freecompany__gc:has(i)`, func(e *colly.HTMLElement) {
 		var server model.Server
 		var datacenter model.Datacenter
@@ -35,21 +35,21 @@ func FreecompanyServerHandler(data *freecompany.FreeCompany) (string, func(e *co
 	}
 
 }
-func FreecompanySloganHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanySloganHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__text__message`, func(e *colly.HTMLElement) {
 		data.Slogan = e.Text
 
 	}
 
 }
-func FreecompanyShortnameHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyShortnameHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__text__tag`, func(e *colly.HTMLElement) {
 		data.ShortName = strings.ReplaceAll(strings.ReplaceAll(e.Text, "«", ""), "»", "")
 
 	}
 
 }
-func FreecompanyFoundedHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyFoundedHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `h3.heading--lead:contains("Formed")`, func(e *colly.HTMLElement) {
 		tempTime, err := strconv.ParseInt(After(BeforeLast(e.DOM.Next().Text(), ","), "("), 10, 64)
 		if err != nil {
@@ -61,7 +61,7 @@ func FreecompanyFoundedHandler(data *freecompany.FreeCompany) (string, func(e *c
 
 }
 
-func FreecompanyGrandcompanyReputationHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyGrandcompanyReputationHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `div.freecompany__reputation__data`, func(e *colly.HTMLElement) {
 		var grandcompany freecompany.Reputation
 		grandcompany.GrandCompanyName = e.ChildText("p.freecompany__reputation__gcname")
@@ -70,7 +70,7 @@ func FreecompanyGrandcompanyReputationHandler(data *freecompany.FreeCompany) (st
 	}
 }
 
-func FreecompanyRankHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyRankHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `h3.heading--lead:contains("Rank")`, func(e *colly.HTMLElement) {
 		if e.Text == "Rank" {
 			rank, err := strconv.ParseInt(e.DOM.NextFiltered("p.freecompany__text").Text(), 10, 64)
@@ -84,7 +84,7 @@ func FreecompanyRankHandler(data *freecompany.FreeCompany) (string, func(e *coll
 
 }
 
-func FreecompanyEstateHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyEstateHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__estate__name`, func(e *colly.HTMLElement) {
 		var estate freecompany.Estate
 		estate.Name = e.Text
@@ -95,7 +95,7 @@ func FreecompanyEstateHandler(data *freecompany.FreeCompany) (string, func(e *co
 	}
 
 }
-func FreecompanyPvPHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyPvPHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("PvP")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Pvp = false
@@ -105,7 +105,7 @@ func FreecompanyPvPHandler(data *freecompany.FreeCompany) (string, func(e *colly
 	}
 
 }
-func FreecompanyRaidsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyRaidsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Raids")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Raids = false
@@ -114,7 +114,7 @@ func FreecompanyRaidsHandler(data *freecompany.FreeCompany) (string, func(e *col
 		}
 	}
 }
-func FreecompanyTrialsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyTrialsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Trials")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Trials = false
@@ -123,7 +123,7 @@ func FreecompanyTrialsHandler(data *freecompany.FreeCompany) (string, func(e *co
 		}
 	}
 }
-func FreecompanyGuildhestsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyGuildhestsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Guildhests")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Guildheists = false
@@ -132,7 +132,7 @@ func FreecompanyGuildhestsHandler(data *freecompany.FreeCompany) (string, func(e
 		}
 	}
 }
-func FreecompanyDungeonsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyDungeonsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Dungeons")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Dungeons = false
@@ -141,7 +141,7 @@ func FreecompanyDungeonsHandler(data *freecompany.FreeCompany) (string, func(e *
 		}
 	}
 }
-func FreecompanyHardcoreHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyHardcoreHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Hardcore")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Hardcore = false
@@ -150,7 +150,7 @@ func FreecompanyHardcoreHandler(data *freecompany.FreeCompany) (string, func(e *
 		}
 	}
 }
-func FreecompanyCasualHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyCasualHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Casual")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Casual = false
@@ -159,7 +159,7 @@ func FreecompanyCasualHandler(data *freecompany.FreeCompany) (string, func(e *co
 		}
 	}
 }
-func FreecompanyLevelingHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyLevelingHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Leveling")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Leveling = false
@@ -168,7 +168,7 @@ func FreecompanyLevelingHandler(data *freecompany.FreeCompany) (string, func(e *
 		}
 	}
 }
-func FreecompanyRoleplayingHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyRoleplayingHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Role-playing")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Roleplay = false
@@ -177,7 +177,7 @@ func FreecompanyRoleplayingHandler(data *freecompany.FreeCompany) (string, func(
 		}
 	}
 }
-func FreecompanyTankHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyTankHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Tank")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Tank = false
@@ -186,7 +186,7 @@ func FreecompanyTankHandler(data *freecompany.FreeCompany) (string, func(e *coll
 		}
 	}
 }
-func FreecompanyHealerHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyHealerHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Healer")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Heal = false
@@ -195,7 +195,7 @@ func FreecompanyHealerHandler(data *freecompany.FreeCompany) (string, func(e *co
 		}
 	}
 }
-func FreecompanyDDHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyDDHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("DPS")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.DD = false
@@ -204,7 +204,7 @@ func FreecompanyDDHandler(data *freecompany.FreeCompany) (string, func(e *colly.
 		}
 	}
 }
-func FreecompanyGathererHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyGathererHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Gatherer")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Gatherer = false
@@ -213,7 +213,7 @@ func FreecompanyGathererHandler(data *freecompany.FreeCompany) (string, func(e *
 		}
 	}
 }
-func FreecompanyCrafterHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyCrafterHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p:contains("Crafter")`, func(e *colly.HTMLElement) {
 		if e.DOM.Parent().HasClass("freecompany__focus_icon--off") {
 			data.Crafter = false
@@ -222,7 +222,7 @@ func FreecompanyCrafterHandler(data *freecompany.FreeCompany) (string, func(e *c
 		}
 	}
 }
-func FreecompanyMemberHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyMemberHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `a.entry__bg`, func(e *colly.HTMLElement) {
 		temp := After(BeforeLast(e.Attr("href"), "/"), "/")
 		var fcmember freecompany.Member
@@ -244,7 +244,7 @@ func FreecompanyMemberHandler(data *freecompany.FreeCompany) (string, func(e *co
 	}
 
 }
-func FreecompanyAcceptsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyAcceptsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__recruitment`, func(e *colly.HTMLElement) {
 		if strings.Contains(e.Text, "Open") {
 			data.Accepts = true
@@ -252,7 +252,7 @@ func FreecompanyAcceptsHandler(data *freecompany.FreeCompany) (string, func(e *c
 	}
 }
 
-func FreecompanyCrestHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+func freecompanyCrestHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return "div.entry__freecompany__crest__image", func(e *colly.HTMLElement) {
 		data.Crest = &model.Crest{}
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
@@ -270,6 +270,6 @@ func FreecompanyCrestHandler(data *freecompany.FreeCompany) (string, func(e *col
 	}
 }
 
-func FreecompanyHandlers() []func(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
-	return []func(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)){FreecompanyCrestHandler, FreecompanyAcceptsHandler, FreecompanyGrandcompanyReputationHandler, FreecompanyMemberHandler, FreecompanyNameHandler, FreecompanyServerHandler, FreecompanySloganHandler, FreecompanyShortnameHandler, FreecompanyFoundedHandler, FreecompanyRankHandler, FreecompanyEstateHandler, FreecompanyHealerHandler, FreecompanyDDHandler, FreecompanyGathererHandler, FreecompanyCrafterHandler, FreecompanyTankHandler, FreecompanyRoleplayingHandler, FreecompanyLevelingHandler, FreecompanyPvPHandler, FreecompanyRaidsHandler, FreecompanyTrialsHandler, FreecompanyGuildhestsHandler, FreecompanyDungeonsHandler, FreecompanyHardcoreHandler, FreecompanyCasualHandler}
+func freecompanyHandlers() []func(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
+	return []func(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)){freecompanyCrestHandler, freecompanyAcceptsHandler, freecompanyGrandcompanyReputationHandler, freecompanyMemberHandler, freecompanyNameHandler, freecompanyServerHandler, freecompanySloganHandler, freecompanyShortnameHandler, freecompanyFoundedHandler, freecompanyRankHandler, freecompanyEstateHandler, freecompanyHealerHandler, freecompanyDDHandler, freecompanyGathererHandler, freecompanyCrafterHandler, freecompanyTankHandler, freecompanyRoleplayingHandler, freecompanyLevelingHandler, freecompanyPvPHandler, freecompanyRaidsHandler, freecompanyTrialsHandler, freecompanyGuildhestsHandler, freecompanyDungeonsHandler, freecompanyHardcoreHandler, freecompanyCasualHandler}
 }

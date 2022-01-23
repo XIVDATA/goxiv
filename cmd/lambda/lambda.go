@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/xivdata/goxiv/controller"
+	"github.com/xivdata/goxiv"
 	"github.com/xivdata/goxiv/model/character"
 )
 
@@ -13,7 +13,8 @@ type Request struct {
 }
 
 func HandleRequest(ctx context.Context, id Request) (character.Character, error) {
-	temp := controller.ScrapeCharacter(id.ID)
+	goxiv := goxiv.GoXIV{}
+	temp := goxiv.ScrapeCharacter(id.ID)
 	return temp, nil
 }
 

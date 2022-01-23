@@ -10,7 +10,7 @@ import (
 	"github.com/xivdata/goxiv/model/linkshell"
 )
 
-func LinkshellMemberHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
+func linkshellMemberHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
 	return "a.entry__link", func(e *colly.HTMLElement) {
 		var member linkshell.LinkshellMember
 		tempString := After(BeforeLast(e.Attr("href"), "/"), "/")
@@ -31,20 +31,20 @@ func LinkshellMemberHandler(data *linkshell.Linkshell) (string, func(e *colly.HT
 	}
 }
 
-func LinkshellNameHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
+func linkshellNameHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
 	return "h3.heading__linkshell__name", func(e *colly.HTMLElement) {
 		data.Name = e.DOM.Children().Remove().End().Text()
 	}
 }
 
-func WorldLinkshellDatacenterHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
+func worldLinkshellDatacenterHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
 	return "span.heading__cwls__dcname", func(e *colly.HTMLElement) {
 		if data.WorldType {
 			data.Datacenter = &model.Datacenter{Name: e.Text}
 		}
 	}
 }
-func WorldLinkshellFoundedHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
+func worldLinkshellFoundedHandler(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
 	return "span.heading__cwls__formed", func(e *colly.HTMLElement) {
 		stringtime := After(BeforeLast(e.DOM.Find("script").Text(), ","), "(")
 		tempTime, err := strconv.ParseInt(stringtime, 10, 64)
@@ -55,6 +55,6 @@ func WorldLinkshellFoundedHandler(data *linkshell.Linkshell) (string, func(e *co
 	}
 }
 
-func LinkshellHandlers() []func(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
-	return []func(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)){WorldLinkshellFoundedHandler, WorldLinkshellDatacenterHandler, LinkshellNameHandler, LinkshellMemberHandler}
+func linkshellHandlers() []func(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)) {
+	return []func(data *linkshell.Linkshell) (string, func(e *colly.HTMLElement)){worldLinkshellFoundedHandler, worldLinkshellDatacenterHandler, linkshellNameHandler, linkshellMemberHandler}
 }

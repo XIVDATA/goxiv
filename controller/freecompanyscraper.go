@@ -17,29 +17,29 @@ const (
 	FREECOMPANYENDPOINT = "/lodestone/freecompany/"
 )
 
-func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
-	c := colly.NewCollector(
+func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
+	collector := colly.NewCollector(
 		colly.MaxDepth(2),
 		// colly.AllowURLRevisit(),
 	)
-	c.SetRequestTimeout(60 * time.Second)
+	collector.SetRequestTimeout(60 * time.Second)
 	logrus.Infof("Scraping Free Company %v", id)
-	// if Proxyfunc != nil {
-	// 	logrus.Info("Using Proxys for scraping free companys")
-	// 	c.SetProxyFunc(Proxyfunc)
-	// }
+	if c.proxyfunc != nil {
+		logrus.Info("Using Proxys for scraping free companys")
+		collector.SetProxyFunc(c.proxyfunc)
+	}
 	var company freecompany.FreeCompany
 
 	// Set error handler
-	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+	collector.OnError(func(r *colly.Response, err error) {
+		logrus.Println("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 	})
-	for _, f := range FreecompanyHandlers() {
-		c.OnHTML(f(&company))
+	for _, f := range freecompanyHandlers() {
+		collector.OnHTML(f(&company))
 	}
 	MAINURL := fmt.Sprintf("%v%v%d", URL, FREECOMPANYENDPOINT, id)
 	MEMBERURL := fmt.Sprintf("%v%v%d/member", URL, FREECOMPANYENDPOINT, id)
-	c.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
+	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
 		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
@@ -50,7 +50,7 @@ func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 		if strings.Contains(e.Request.URL.String(), "member") {
 			for i = 2; i <= tempID; i++ {
 				time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
-				c.Visit(fmt.Sprintf("%v%d", url, i))
+				collector.Visit(fmt.Sprintf("%v%d", url, i))
 				if err != nil {
 					logrus.Println("Visiting failed:", err)
 				}
@@ -59,16 +59,16 @@ func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	})
 
 	//Command to visit the website
-	err := c.Visit(MAINURL)
+	err := collector.Visit(MAINURL)
 	if err != nil {
 		logrus.Println("Visiting failed:", err)
 	}
-	err = c.Visit(MEMBERURL)
+	err = collector.Visit(MEMBERURL)
 	if err != nil {
 		logrus.Println("Visiting failed:", err)
 	}
 	logrus.Info("Waiting for Collector")
-	c.Wait()
+	collector.Wait()
 
 	company.ID = id
 	return company

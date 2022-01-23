@@ -6,11 +6,12 @@ import (
 	"io/ioutil"
 
 	"github.com/sirupsen/logrus"
-	"github.com/xivdata/goxiv/controller"
+	"github.com/xivdata/goxiv"
 )
 
 func main() {
-	char := controller.ScrapeCharacter(10477093)
+	goxiv := goxiv.GoXIV{}
+	char := goxiv.ScrapeCharacter(10477093)
 	b, err := json.Marshal(char)
 	if err != nil {
 		logrus.Error("Error: ", err)
@@ -19,7 +20,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
-	fc := controller.ScrapeFreecompany(9232801448574584889)
+	fc := goxiv.ScrapeFreecompany(9232801448574584889)
 	b, err = json.Marshal(fc)
 	if err != nil {
 		logrus.Error("Error: ", err)
@@ -28,7 +29,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
-	pvpteam := controller.ScrapePvPTeam("50276fadbb2edce09708ed5171a93c2d05eaf701")
+	pvpteam := goxiv.ScrapePvPTeam("50276fadbb2edce09708ed5171a93c2d05eaf701")
 	b, err = json.Marshal(pvpteam)
 	if err != nil {
 		logrus.Error("Error: ", err)
@@ -37,7 +38,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
-	worldlinkshell := controller.ScrapeLinkshell("09fc154c707570cf2a3e12f48aff36ea2506e88c", true)
+	worldlinkshell := goxiv.ScrapeLinkshell("09fc154c707570cf2a3e12f48aff36ea2506e88c", true)
 	b, err = json.Marshal(worldlinkshell)
 	if err != nil {
 		logrus.Error("Error: ", err)
@@ -46,7 +47,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
-	linkshell := controller.ScrapeLinkshell("18858823439663593", false)
+	linkshell := goxiv.ScrapeLinkshell("18858823439663593", false)
 	b, err = json.Marshal(linkshell)
 	if err != nil {
 		logrus.Error("Error: ", err)

@@ -14,18 +14,18 @@ import (
 	"github.com/xivdata/goxiv/model/character"
 )
 
-func CharacterNameHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterNameHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "p.frame__chara__name", func(e *colly.HTMLElement) {
 		data.Name = e.Text
 	}
 }
-func CharacterTitleHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterTitleHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "p.frame__chara__title", func(e *colly.HTMLElement) {
 		data.Title = strings.Trim(e.Text, " ")
 	}
 }
 
-func CharacterServerDatacenterHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterServerDatacenterHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "p.frame__chara__world", func(e *colly.HTMLElement) {
 		var server model.Server
 		var datacenter model.Datacenter
@@ -39,7 +39,7 @@ func CharacterServerDatacenterHandler(data *character.Character) (string, func(e
 
 }
 
-func CharacterFreecompanyHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterFreecompanyHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "div.character__freecompany__name", func(e *colly.HTMLElement) {
 		link := e.ChildAttr("a", "href")
 		temp, err := strconv.ParseUint(After(BeforeLast(link, "/"), "/"), 10, 64)
@@ -53,7 +53,7 @@ func CharacterFreecompanyHandler(data *character.Character) (string, func(e *col
 	}
 }
 
-func CharacterPvPTeamHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterPvPTeamHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "div.character__pvpteam__name", func(e *colly.HTMLElement) {
 		link := e.ChildAttr("a", "href")
 		data.PvPTeamID = After(BeforeLast(link, "/"), "/")
@@ -62,7 +62,7 @@ func CharacterPvPTeamHandler(data *character.Character) (string, func(e *colly.H
 	}
 }
 
-func CharacterPvPTeamCrestHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterPvPTeamCrestHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "div.character__pvpteam__crest__image", func(e *colly.HTMLElement) {
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
 			v, _ := s.Attr("src")
@@ -81,7 +81,7 @@ func CharacterPvPTeamCrestHandler(data *character.Character) (string, func(e *co
 	}
 }
 
-func CharacterGrandcompanyHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterGrandcompanyHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `p.character-block__title:contains("Grand Company")`, func(e *colly.HTMLElement) {
 		temp := e.DOM.Siblings().Text()
 		var grandcompany character.GrandCompany
@@ -91,13 +91,13 @@ func CharacterGrandcompanyHandler(data *character.Character) (string, func(e *co
 	}
 }
 
-func CharacterBioHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterBioHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "div.character__selfintroduction", func(e *colly.HTMLElement) {
 		data.Bio = e.Text
 	}
 }
 
-func CharacterTraitHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterTraitHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `p.character-block__title:contains("Race/Clan/Gender")`, func(e *colly.HTMLElement) {
 		temp, _ := e.DOM.Siblings().Html()
 		if strings.Contains(temp, "♀") {
@@ -112,19 +112,19 @@ func CharacterTraitHandler(data *character.Character) (string, func(e *colly.HTM
 	}
 }
 
-func CharacterCitystageHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterCitystageHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `p.character-block__title:contains("City-state")`, func(e *colly.HTMLElement) {
 		data.Citystate = e.DOM.Siblings().Text()
 	}
 }
 
-func CharacterNamedayHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterNamedayHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "p.character-block__birth", func(e *colly.HTMLElement) {
 		data.Nameday = e.Text
 	}
 
 }
-func CharacterGuardianHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterGuardianHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `p.character-block__title:contains("Guardian")`, func(e *colly.HTMLElement) {
 		temp := e.DOM.SiblingsFiltered("p.character-block__name").Text()
 		data.Guardian = temp
@@ -132,7 +132,7 @@ func CharacterGuardianHandler(data *character.Character) (string, func(e *colly.
 
 }
 
-func CharacterClassSpecialistHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterClassSpecialistHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `div.character__job__name--meister`, func(e *colly.HTMLElement) {
 		level := e.DOM.SiblingsFiltered("div.character__job__level").Text()
 		if level != "-" {
@@ -178,7 +178,7 @@ func CharacterClassSpecialistHandler(data *character.Character) (string, func(e 
 
 }
 
-func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterClassHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `div.character__job__name`, func(e *colly.HTMLElement) {
 		level := e.DOM.SiblingsFiltered("div.character__job__level").Text()
 		if level != "-" {
@@ -224,7 +224,7 @@ func CharacterClassHandler(data *character.Character) (string, func(e *colly.HTM
 
 }
 
-func CharacterBozjaHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterBozjaHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `div.character__job__name-sp:contains("Resistance Rank")`, func(e *colly.HTMLElement) {
 		level := e.DOM.SiblingsFiltered("div.character__job__level").Text()
 		exp := Between(e.DOM.SiblingsFiltered("div.character__job__exp").Text(), "Current Mettle: ", " / Mettle to Next Rank")
@@ -247,7 +247,7 @@ func CharacterBozjaHandler(data *character.Character) (string, func(e *colly.HTM
 	}
 
 }
-func CharacterEurekaHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterEurekaHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `div.character__job__name-sp:contains("Elemental Level")`, func(e *colly.HTMLElement) {
 		level := e.DOM.SiblingsFiltered("div.character__job__level").Text()
 		exp := BeforeLast(e.DOM.SiblingsFiltered("div.character__job__exp").Text(), " /")
@@ -272,7 +272,7 @@ func CharacterEurekaHandler(data *character.Character) (string, func(e *colly.HT
 
 }
 
-func CharacterMinionHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterMinionHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `span.minion__name`, func(e *colly.HTMLElement) {
 		var minion character.Minion
 		minion.Name = e.Text
@@ -281,7 +281,7 @@ func CharacterMinionHandler(data *character.Character) (string, func(e *colly.HT
 	}
 
 }
-func CharacterMountHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterMountHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `span.mount__name`, func(e *colly.HTMLElement) {
 		var mount character.Mount
 		mount.Name = e.Text
@@ -291,20 +291,20 @@ func CharacterMountHandler(data *character.Character) (string, func(e *colly.HTM
 
 }
 
-func CharacterAvatarFaceHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterAvatarFaceHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `img.character-block__face`, func(e *colly.HTMLElement) {
 		data.Face = e.Attr("src")
 	}
 
 }
 
-func CharacterAvatarHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterAvatarHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `div.character__detail__image`, func(e *colly.HTMLElement) {
 		data.Avatar = e.ChildAttr("a", "href")
 	}
 }
 
-func CharacterAchievementHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterAchievementHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `li.entry`, func(e *colly.HTMLElement) {
 		temp := After(BeforeLast(e.ChildAttr("a.entry__achievement", "href"), "/"), "/")
 		var achievement character.Achievement
@@ -324,7 +324,7 @@ func CharacterAchievementHandler(data *character.Character) (string, func(e *col
 
 }
 
-func CharacterFriendHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterFriendHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return `a.entry__link`, func(e *colly.HTMLElement) {
 		temp := After(BeforeLast(e.Attr("href"), "/"), "/")
 		var friend character.Friend
@@ -341,7 +341,7 @@ func CharacterFriendHandler(data *character.Character) (string, func(e *colly.HT
 
 }
 
-func CharacterFreecompanyCrestHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
+func characterFreecompanyCrestHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "div.character__freecompany__crest__image", func(e *colly.HTMLElement) {
 		data.FreeCompanyCrest = &model.Crest{}
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
@@ -360,6 +360,6 @@ func CharacterFreecompanyCrestHandler(data *character.Character) (string, func(e
 	}
 }
 
-func CharacterHandlers() []func(data *character.Character) (string, func(e *colly.HTMLElement)) {
-	return []func(data *character.Character) (string, func(e *colly.HTMLElement)){CharacterPvPTeamCrestHandler, CharacterFreecompanyCrestHandler, CharacterGearsetClassHandler, CharacterPvPTeamHandler, CharacterAvatarHandler, CharacterGearsetOffhandHandler, CharacterGearsetHeadHandler, CharacterGearsetBodyHandler, CharacterGearsetHandsHandler, CharacterGearsetWaistHandler, CharacterGearsetLegsHandler, CharacterGearsetFeetHandler, CharacterGearsetEarringHandler, CharacterGearsetNecklaceHandler, CharacterGearsetRing1Handler, CharacterGearsetSoulCrystalHandler, CharacterGearsetRing2Handler, CharacterGearsetBraceletsHandler, CharacterGearsetMainhandHandler, CharacterAvatarFaceHandler, CharacterNameHandler, CharacterFriendHandler, CharacterAchievementHandler, CharacterTitleHandler, CharacterServerDatacenterHandler, CharacterFreecompanyHandler, CharacterGrandcompanyHandler, CharacterBioHandler, CharacterTraitHandler, CharacterCitystageHandler, CharacterNamedayHandler, CharacterGuardianHandler, CharacterEurekaHandler, CharacterBozjaHandler, CharacterClassHandler, CharacterMountHandler, CharacterMinionHandler, CharacterClassSpecialistHandler}
+func characterHandlers() []func(data *character.Character) (string, func(e *colly.HTMLElement)) {
+	return []func(data *character.Character) (string, func(e *colly.HTMLElement)){characterPvPTeamCrestHandler, characterFreecompanyCrestHandler, characterGearsetClassHandler, characterPvPTeamHandler, characterAvatarHandler, characterGearsetOffhandHandler, characterGearsetHeadHandler, characterGearsetBodyHandler, characterGearsetHandsHandler, characterGearsetWaistHandler, characterGearsetLegsHandler, characterGearsetFeetHandler, characterGearsetEarringHandler, characterGearsetNecklaceHandler, characterGearsetRing1Handler, characterGearsetSoulCrystalHandler, characterGearsetRing2Handler, characterGearsetBraceletsHandler, characterGearsetMainhandHandler, characterAvatarFaceHandler, characterNameHandler, characterFriendHandler, characterAchievementHandler, characterTitleHandler, characterServerDatacenterHandler, characterFreecompanyHandler, characterGrandcompanyHandler, characterBioHandler, characterTraitHandler, characterCitystageHandler, characterNamedayHandler, characterGuardianHandler, characterEurekaHandler, characterBozjaHandler, characterClassHandler, characterMountHandler, characterMinionHandler, characterClassSpecialistHandler}
 }
