@@ -11,7 +11,7 @@ import (
 	"github.com/xivdata/goxiv/model/pvpteam"
 )
 
-func PvPTeamCrestHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+func pvpTeamCrestHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
 	return "div.entry__pvpteam__crest__image", func(e *colly.HTMLElement) {
 		data.Crest = model.Crest{}
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
@@ -29,19 +29,19 @@ func PvPTeamCrestHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLEleme
 	}
 }
 
-func PvPTeamNameHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+func pvpTeamNameHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
 	return "h2.entry__pvpteam__name--team", func(e *colly.HTMLElement) {
 		data.Name = e.Text
 	}
 }
 
-func PvPDCHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+func pvpDCHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
 	return "p.entry__pvpteam__name--dc", func(e *colly.HTMLElement) {
 		data.Datacenter = &model.Datacenter{Name: e.Text}
 	}
 }
 
-func PvPTeamFoundedHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+func pvpTeamFoundedHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
 	return `span.entry__pvpteam__data--formed`, func(e *colly.HTMLElement) {
 		stringtime := After(BeforeLast(e.DOM.Find("script").Text(), ","), "(")
 		tempTime, err := strconv.ParseInt(stringtime, 10, 64)
@@ -52,7 +52,7 @@ func PvPTeamFoundedHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLEle
 	}
 }
 
-func PvPTeamMemberHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+func pvpTeamMemberHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
 	return `a.entry__bg`, func(e *colly.HTMLElement) {
 		var member pvpteam.PvPMember
 		temp := After(BeforeLast(e.Attr("href"), "/"), "/")
@@ -77,6 +77,6 @@ func PvPTeamMemberHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElem
 	}
 }
 
-func PvPTeamHandlers() []func(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
-	return []func(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)){PvPTeamCrestHandler, PvPTeamMemberHandler, PvPTeamNameHandler, PvPDCHandler, PvPTeamFoundedHandler}
+func pvpTeamHandlers() []func(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)) {
+	return []func(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElement)){pvpTeamCrestHandler, pvpTeamMemberHandler, pvpTeamNameHandler, pvpDCHandler, pvpTeamFoundedHandler}
 }
