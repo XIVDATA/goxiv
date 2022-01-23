@@ -19,5 +19,40 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
-	controller.ScrapeFreecompany(9232801448574584889)
+	fc := controller.ScrapeFreecompany(9232801448574584889)
+	b, err = json.Marshal(fc)
+	if err != nil {
+		logrus.Error("Error: ", err)
+	}
+	err = ioutil.WriteFile(fmt.Sprintf("fc-%d.json", fc.ID), b, 0644)
+	if err != nil {
+		logrus.Error("Could not write json ", err)
+	}
+	pvpteam := controller.ScrapePvPTeam("50276fadbb2edce09708ed5171a93c2d05eaf701")
+	b, err = json.Marshal(pvpteam)
+	if err != nil {
+		logrus.Error("Error: ", err)
+	}
+	err = ioutil.WriteFile(fmt.Sprintf("pvpteam-%v.json", pvpteam.ID), b, 0644)
+	if err != nil {
+		logrus.Error("Could not write json ", err)
+	}
+	worldlinkshell := controller.ScrapeLinkshell("09fc154c707570cf2a3e12f48aff36ea2506e88c", true)
+	b, err = json.Marshal(worldlinkshell)
+	if err != nil {
+		logrus.Error("Error: ", err)
+	}
+	err = ioutil.WriteFile(fmt.Sprintf("worldlinkshell-%v.json", worldlinkshell.ID), b, 0644)
+	if err != nil {
+		logrus.Error("Could not write json ", err)
+	}
+	linkshell := controller.ScrapeLinkshell("18858823439663593", false)
+	b, err = json.Marshal(linkshell)
+	if err != nil {
+		logrus.Error("Error: ", err)
+	}
+	err = ioutil.WriteFile(fmt.Sprintf("linkshell-%v.json", linkshell.ID), b, 0644)
+	if err != nil {
+		logrus.Error("Could not write json ", err)
+	}
 }

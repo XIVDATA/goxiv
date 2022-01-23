@@ -11,7 +11,7 @@ type FreeCompany struct {
 	Name        string
 	Founded     time.Time
 	Server      *model.Server
-	Crest       *Crest
+	Crest       *model.Crest
 	ShortName   string
 	Slogan      string
 	Rank        int64

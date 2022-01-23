@@ -2,24 +2,22 @@ package character
 
 import (
 	"github.com/xivdata/goxiv/model"
-	"github.com/xivdata/goxiv/model/freecompany"
 	"github.com/xivdata/goxiv/model/gear"
 )
 
 type Character struct {
-	ID           int64
-	Name         string
-	Server       *model.Server
-	Achievements []Achievement `json:",omitempty"`
-	Mounts       []Mount       `json:",omitempty"`
-	Minions      []Minion      `json:",omitempty"`
-	Classes      []Class
-	// FreeCompany  *freecompany.FreeCompany
-	FreeCompanyID    uint64             `json:",omitempty"`
-	FreeCompanyName  string             `json:",omitempty"`
-	FreeCompanyURL   string             `json:",omitempty"`
-	FreeCompanyCrest *freecompany.Crest `json:",omitempty"`
-	Grandcompany     *GrandCompany      `json:",omitempty"`
+	ID               int64
+	Name             string
+	Server           *model.Server
+	Achievements     []Achievement `json:",omitempty"`
+	Mounts           []Mount       `json:",omitempty"`
+	Minions          []Minion      `json:",omitempty"`
+	Classes          []Class
+	FreeCompanyID    uint64        `json:",omitempty"`
+	FreeCompanyName  string        `json:",omitempty"`
+	FreeCompanyURL   string        `json:",omitempty"`
+	FreeCompanyCrest *model.Crest  `json:",omitempty"`
+	Grandcompany     *GrandCompany `json:",omitempty"`
 	Citystate        string
 	CitystateID      int64 `json:",omitempty"`
 	Guardian         string
@@ -39,7 +37,10 @@ type Character struct {
 	TitleID          int64   `json:",omitempty"`
 	Friends          []*Friend
 	Gearset          gear.GearSet
-	PvPTeam          *PvPTeam `json:",omitempty"`
+	PvPTeam          string      `json:",omitempty"`
+	PvPTeamID        string      `json:",omitempty"`
+	PvPTeamCrest     model.Crest `json:",omitempty"`
+	PvPTeamURL       string      `json:",omitempty"`
 	Avatar           string
 	Face             string
 }

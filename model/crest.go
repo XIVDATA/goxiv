@@ -1,4 +1,4 @@
-package freecompany
+package model
 
 type Crest struct {
 	Top    string

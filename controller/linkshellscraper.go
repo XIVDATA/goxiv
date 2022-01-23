@@ -9,43 +9,49 @@ import (
 
 	"github.com/gocolly/colly/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/xivdata/goxiv/model/freecompany"
+	"github.com/xivdata/goxiv/model/linkshell"
 )
 
 const (
-	URL                 = "http://eu.finalfantasyxiv.com"
-	FREECOMPANYENDPOINT = "/lodestone/freecompany/"
+	LINKSHELLENDPOINT      = "/lodestone/linkshell/"
+	WORLDLINKSHELLENDPOINT = "/lodestone/crossworld_linkshell/"
 )
 
-func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
+func ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 	c := colly.NewCollector(
 		colly.MaxDepth(2),
 		// colly.AllowURLRevisit(),
 	)
 	c.SetRequestTimeout(60 * time.Second)
-	logrus.Infof("Scraping Free Company %v", id)
+	logrus.Infof("Scraping Linkshell %v Worldlinkshell: %v", id, world)
 	// if Proxyfunc != nil {
-	// 	logrus.Info("Using Proxys for scraping free companys")
+	// 	logrus.Info("Using Proxys for scraping linkshell")
 	// 	c.SetProxyFunc(Proxyfunc)
 	// }
-	var company freecompany.FreeCompany
-
+	var linkshell linkshell.Linkshell
+	linkshell.WorldType = world
+	linkshell.ID = id
 	// Set error handler
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 	})
-	for _, f := range FreecompanyHandlers() {
-		c.OnHTML(f(&company))
+	for _, f := range LinkshellHandlers() {
+		c.OnHTML(f(&linkshell))
 	}
-	MAINURL := fmt.Sprintf("%v%v%d", URL, FREECOMPANYENDPOINT, id)
-	MEMBERURL := fmt.Sprintf("%v%v%d/member", URL, FREECOMPANYENDPOINT, id)
+	var MAINURL string
+	if linkshell.WorldType {
+		MAINURL = fmt.Sprintf("%v%v%v", URL, WORLDLINKSHELLENDPOINT, id)
+	} else {
+		MAINURL = fmt.Sprintf("%v%v%v", URL, LINKSHELLENDPOINT, id)
+	}
+
 	c.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
 		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
 		}
 		var i int64
-		url := fmt.Sprintf("%v/?page=", MEMBERURL)
+		url := fmt.Sprintf("%v/?page=", MAINURL)
 
 		if strings.Contains(e.Request.URL.String(), "member") {
 			for i = 2; i <= tempID; i++ {
@@ -58,18 +64,11 @@ func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 		}
 	})
 
-	//Command to visit the website
 	err := c.Visit(MAINURL)
-	if err != nil {
-		logrus.Println("Visiting failed:", err)
-	}
-	err = c.Visit(MEMBERURL)
 	if err != nil {
 		logrus.Println("Visiting failed:", err)
 	}
 	logrus.Info("Waiting for Collector")
 	c.Wait()
-
-	company.ID = id
-	return company
+	return linkshell
 }

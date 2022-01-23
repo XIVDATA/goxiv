@@ -254,7 +254,7 @@ func FreecompanyAcceptsHandler(data *freecompany.FreeCompany) (string, func(e *c
 
 func FreecompanyCrestHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return "div.entry__freecompany__crest__image", func(e *colly.HTMLElement) {
-		data.Crest = &freecompany.Crest{}
+		data.Crest = &model.Crest{}
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
 			v, _ := s.Attr("src")
 			switch i {
