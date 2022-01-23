@@ -41,6 +41,10 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 			logger.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 			time.Sleep(2 * time.Second)
 			collector.Visit(r.Request.URL.String())
+		case 0:
+			logger.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
+			time.Sleep(2 * time.Second)
+			collector.Visit(r.Request.URL.String())
 		case 502:
 			logger.Error("Bad Gateway:", err)
 			time.Sleep(2 * time.Second)
