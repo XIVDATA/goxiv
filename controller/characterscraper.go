@@ -18,6 +18,10 @@ const (
 )
 
 func (c Controller) ScrapeCharacter(id int64) character.Character {
+	if id == 0 {
+		return nil
+	}
+	logger := logrus.WithField("character", id)
 	logrus.Infof("Scraping Character %v", id)
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
@@ -26,7 +30,7 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 	)
 	collector.SetRequestTimeout(60 * time.Second)
 	if c.proxyfunc != nil {
-		logrus.Info("Using Proxys for scraping characters ")
+		logger.Info("Using Proxys for scraping characters ")
 		collector.SetProxyFunc(c.proxyfunc)
 	}
 
@@ -34,20 +38,20 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 	collector.OnError(func(r *colly.Response, err error) {
 		switch r.StatusCode {
 		case 429:
-			logrus.WithField("id", id).WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
+			logger.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 			time.Sleep(2 * time.Second)
 			collector.Visit(r.Request.URL.String())
 		case 502:
-			logrus.WithField("id", id).Error("Bad Gateway:", err)
+			logger.Error("Bad Gateway:", err)
 			time.Sleep(2 * time.Second)
 			collector.Visit(r.Request.URL.String())
 		case 404:
-			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+			logger.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		case 503:
-			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+			logger.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		case 403:
 		default:
-			logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+			logger.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		}
 	})
 	collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
@@ -94,36 +98,37 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 			// time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
 			collector.Visit(fmt.Sprintf("%v%d", url, i))
 			if err != nil {
-				logrus.Error("Visiting failed:", err)
+				logger.Error("Visiting failed:", err)
 			}
 		}
 	})
 
 	err := collector.Visit(MAINURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
 	err = collector.Visit(CLASSURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
 	err = collector.Visit(MINIONURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
 	err = collector.Visit(MOUNTURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
 	err = collector.Visit(ACHIEVEMENTURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
 	err = collector.Visit(FRIENDURL)
 	if err != nil {
-		logrus.Error("Visiting failed:", err)
+		logger.Error("Visiting failed:", err)
 	}
+	time.Sleep(3 * time.Second)
 	collector.Wait()
-	logrus.Info("Waiting for collector")
+	logger.Info("Waiting for collector")
 	return charactere
 }

@@ -68,6 +68,7 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 		logrus.Println("Visiting failed:", err)
 	}
 	logrus.Info("Waiting for Collector")
+	time.Sleep(2 * time.Second)
 	collector.Wait()
 
 	company.ID = id

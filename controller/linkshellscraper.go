@@ -69,6 +69,7 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 		logrus.Println("Visiting failed:", err)
 	}
 	logrus.Info("Waiting for Collector")
+	time.Sleep(2 * time.Second)
 	collector.Wait()
 	return linkshell
 }
