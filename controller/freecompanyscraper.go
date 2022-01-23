@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -72,13 +70,13 @@ func ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	c.Wait()
 	company.ID = id
 	// parse our response slice into JSON format
-	b, err := json.Marshal(company)
-	if err != nil {
-		logrus.Println("failed to serialize response:", err)
-	}
-	err = ioutil.WriteFile(fmt.Sprintf("fc-%d.json", company.ID), b, 0644)
-	if err != nil {
-		panic(err)
-	}
+	// b, err := json.Marshal(company)
+	// if err != nil {
+	// 	logrus.Println("failed to serialize response:", err)
+	// }
+	// err = ioutil.WriteFile(fmt.Sprintf("fc-%d.json", company.ID), b, 0644)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	return company
 }
