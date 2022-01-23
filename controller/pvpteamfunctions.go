@@ -69,7 +69,8 @@ func PvPTeamMemberHandler(data *pvpteam.PvPTeam) (string, func(e *colly.HTMLElem
 		count := e.DOM.Find("ul.entry__freecompany__info").Children().Length()
 		if count == 4 {
 			member.Rank = e.DOM.Find("ul.entry__freecompany__info").Find("li").First().Text()
-			member.RankIcon, _ = e.DOM.Find("ul.entry__freecompany__info").Find("img").First().Attr("src")
+			tempIcon, _ := e.DOM.Find("ul.entry__freecompany__info").Find("img").First().Attr("src")
+			member.RankIcon = &tempIcon
 		}
 		member.Member = e.ChildText("p.entry__name")
 		data.Member = append(data.Member, &member)
