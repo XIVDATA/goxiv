@@ -23,7 +23,7 @@ func LinkshellMemberHandler(data *linkshell.Linkshell) (string, func(e *colly.HT
 		rankicon, exists := temp.Find("img").Attr("src")
 		if exists {
 			member.Rank = temp.Text()
-			member.RankIcon = rankicon
+			member.RankIcon = &rankicon
 		}
 		member.Character = e.ChildText("p.entry__name")
 		data.Members = append(data.Members, member)
