@@ -36,24 +36,24 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 		collector.OnError(func(r *colly.Response, err error) {
 			switch r.StatusCode {
 			case 429:
-				logger.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
+				logrus.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
 				collector.Visit(r.Request.URL.String())
 			case 0:
-				logger.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
+				logrus.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
 				collector.Visit(r.Request.URL.String())
 			case 502:
-				logger.Error("Bad Gateway:", err)
+				logrus.Error("Bad Gateway:", err)
 				time.Sleep(2 * time.Second)
 				collector.Visit(r.Request.URL.String())
 			case 404:
-				logger.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 			case 503:
-				logger.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 			case 403:
 			default:
-				logger.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+				logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 			}
 		})
 	})
