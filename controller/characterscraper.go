@@ -19,7 +19,7 @@ const (
 
 func (c Controller) ScrapeCharacter(id int64) character.Character {
 	if id == 0 {
-		return nil
+		return character.Character{}
 	}
 	logger := logrus.WithField("character", id)
 	logrus.Infof("Scraping Character %v", id)
