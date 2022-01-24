@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -62,7 +61,11 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	}
 	MAINURL := fmt.Sprintf("%v%v%d", URL, FREECOMPANYENDPOINT, id)
 	MEMBERURL := fmt.Sprintf("%v%v%d/member", URL, FREECOMPANYENDPOINT, id)
-	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
+	if c.parallel <= 0 {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+	} else {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+	}	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
 		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
@@ -72,7 +75,6 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 
 		if strings.Contains(e.Request.URL.String(), "member") {
 			for i = 2; i <= tempID; i++ {
-				time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
 				collector.Visit(fmt.Sprintf("%v%d", url, i))
 				if err != nil {
 					logrus.Println("Visiting failed:", err)

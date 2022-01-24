@@ -58,7 +58,11 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 			logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		}
 	})
-	collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+	if c.parallel <= 0 {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+	} else {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+	}
 	collector.OnRequest(func(r *colly.Request) {
 		if !(strings.Contains(r.URL.String(), "friend") || strings.Contains(r.URL.String(), "achievement") || r.URL.String() == fmt.Sprintf("%v%v%d", URL, CHARACTERENDPOINT, id)) {
 			r.Headers.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1")

@@ -8,6 +8,7 @@ import (
 
 type Controller struct {
 	proxyfunc colly.ProxyFunc
+	parallel  int
 }
 
 func (c Controller) SetProxys(proxys ...string) {
@@ -16,4 +17,8 @@ func (c Controller) SetProxys(proxys ...string) {
 		logrus.Error("Error while creating roundrobin proxyswitcher: ", err)
 	}
 	c.proxyfunc = p
+}
+
+func (c Controller) SetParallelNumber(value int) {
+	c.parallel = value
 }
