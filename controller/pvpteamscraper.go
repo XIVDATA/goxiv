@@ -23,7 +23,8 @@ func (c Controller) ScrapePvPTeam(id string) pvpteam.PvPTeam {
 		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
 	} else {
 		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
-	}	collector.SetRequestTimeout(60 * time.Second)
+	}
+	collector.SetRequestTimeout(60 * time.Second)
 	logrus.Infof("Scraping PvP Team %v", id)
 	if c.proxyfunc != nil {
 		logrus.Info("Using Proxys for scraping pvp teams")

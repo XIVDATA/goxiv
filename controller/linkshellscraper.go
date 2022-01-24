@@ -28,6 +28,11 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 		logrus.Info("Using Proxys for scraping linkshell")
 		collector.SetProxyFunc(c.proxyfunc)
 	}
+	if c.parallel <= 0 {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+	} else {
+		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+	}
 	var linkshell linkshell.Linkshell
 	linkshell.WorldType = world
 	linkshell.ID = id

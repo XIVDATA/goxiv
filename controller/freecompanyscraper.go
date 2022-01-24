@@ -65,7 +65,8 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
 	} else {
 		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
-	}	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
+	}
+	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
 		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
