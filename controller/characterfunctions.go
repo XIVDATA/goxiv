@@ -29,10 +29,10 @@ func characterServerDatacenterHandler(data *character.Character) (string, func(e
 	return "p.frame__chara__world", func(e *colly.HTMLElement) {
 		var server model.Server
 		var datacenter model.Datacenter
-		datacenter.Name = Between(e.Text, "(", ")")
+		datacenter.Name = Between(e.Text, "[", "]")
 		server.Datacenter = datacenter
 		re := regexp.MustCompile(`[^a-zA-Z]+`)
-		temp := BeforeLast(e.Text, "(")
+		temp := BeforeLast(e.Text, "[")
 		server.Name = re.ReplaceAllString(temp, "")
 		data.Server = &server
 	}
