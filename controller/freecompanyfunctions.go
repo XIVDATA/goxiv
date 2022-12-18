@@ -258,11 +258,11 @@ func freecompanyCrestHandler(data *freecompany.FreeCompany) (string, func(e *col
 		e.DOM.Children().Each(func(i int, s *goquery.Selection) {
 			v, _ := s.Attr("src")
 			switch i {
-			case 0:
+			case 2:
 				data.Crest.Top = v
 			case 1:
 				data.Crest.Middle = v
-			case 2:
+			case 0:
 				data.Crest.Bottom = v
 			}
 
