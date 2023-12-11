@@ -40,30 +40,48 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		case 429:
 			logrus.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 			time.Sleep(2 * time.Second)
-			collector.Visit(r.Request.URL.String())
+			err = collector.Visit(r.Request.URL.String())
+			if err != nil {
+				logger.Error("Visiting failed:", err)
+			}
 		case 0:
 			logrus.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
 			time.Sleep(2 * time.Second)
-			collector.Visit(r.Request.URL.String())
+			err = collector.Visit(r.Request.URL.String())
+			if err != nil {
+				logger.Error("Visiting failed:", err)
+			}
 		case 502:
 			logrus.Error("Bad Gateway:", err)
 			time.Sleep(2 * time.Second)
-			collector.Visit(r.Request.URL.String())
+			err = collector.Visit(r.Request.URL.String())
+			if err != nil {
+				logger.Error("Visiting failed:", err)
+			}
 		case 404:
 			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		case 503:
 			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, " Trying again after 2 seconds\nError:", err)
 			time.Sleep(2 * time.Second)
-			collector.Visit(r.Request.URL.String())
+			err = collector.Visit(r.Request.URL.String())
+			if err != nil {
+				logger.Error("Visiting failed:", err)
+			}
 		case 403:
 		default:
 			logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		}
 	})
 	if c.parallel <= 0 {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		if err != nil {
+			logger.Error("Error setting Limitrule:", err)
+		}
 	} else {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		if err != nil {
+			logger.Error("Error setting Limitrule:", err)
+		}
 	}
 	collector.OnRequest(func(r *colly.Request) {
 		if !(strings.Contains(r.URL.String(), "friend") || strings.Contains(r.URL.String(), "achievement") || r.URL.String() == fmt.Sprintf("%v%v%d", URL, CHARACTERENDPOINT, id)) {
@@ -78,7 +96,10 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		Expires: expire,
 	}
 	temp = append(temp, &cookie)
-	collector.SetCookies(URL, temp)
+	err := collector.SetCookies(URL, temp)
+	if err != nil {
+		return character.Character{}
+	}
 	var charactere character.Character
 	charactere.ID = id
 	charactere.Gearset = gear.GearSet{}
@@ -106,14 +127,14 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		}
 		for i = 2; i <= tempID; i++ {
 			// time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
-			collector.Visit(fmt.Sprintf("%v%d", url, i))
+			err = collector.Visit(fmt.Sprintf("%v%d", url, i))
 			if err != nil {
 				logger.Error("Visiting failed:", err)
 			}
 		}
 	})
 
-	err := collector.Visit(MAINURL)
+	err = collector.Visit(MAINURL)
 	if err != nil {
 		logger.Error("Visiting failed:", err)
 	}
