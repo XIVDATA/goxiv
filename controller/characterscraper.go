@@ -84,6 +84,7 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		}
 	}
 	collector.OnRequest(func(r *colly.Request) {
+		logger.Debugf("Visiting %s", r.URL.String())
 		if !(strings.Contains(r.URL.String(), "friend") || strings.Contains(r.URL.String(), "achievement") || r.URL.String() == fmt.Sprintf("%v%v%d", URL, CHARACTERENDPOINT, id)) {
 			r.Headers.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1")
 		}
@@ -114,22 +115,26 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 	FRIENDURL := fmt.Sprintf("%v%v%d/friend", URL, CHARACTERENDPOINT, id)
 	// Set error handler
 	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
-		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
-		if err != nil {
-			logrus.Error("Error while parsing ID ", tempID)
-		}
-		var i int64
-		var url string
-		if strings.Contains(e.Request.URL.String(), "achievement") {
-			url = fmt.Sprintf("%v/?page=", ACHIEVEMENTURL)
-		} else if strings.Contains(e.Request.URL.String(), "friend") {
-			url = fmt.Sprintf("%v/?page=", FRIENDURL)
-		}
-		for i = 2; i <= tempID; i++ {
-			// time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
-			err = collector.Visit(fmt.Sprintf("%v%d", url, i))
+		if strings.Contains(e.Text, "Page 1 of") {
+
+			tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 			if err != nil {
-				logger.Error("Visiting failed:", err)
+				logrus.Error("Error while parsing ID ", tempID)
+			}
+			var i int64
+			var url string
+
+			if strings.Contains(e.Request.URL.String(), "achievement") {
+				url = fmt.Sprintf("%v/?page=", ACHIEVEMENTURL)
+			} else if strings.Contains(e.Request.URL.String(), "friend") {
+				url = fmt.Sprintf("%v/?page=", FRIENDURL)
+			}
+			for i = 2; i <= tempID; i++ {
+				// time.Sleep(time.Duration(rand.Intn(3)) * time.Second)
+				err = collector.Visit(fmt.Sprintf("%v%d", url, i))
+				if err != nil {
+					logger.Error("Visiting failed:", err)
+				}
 			}
 		}
 	})
@@ -159,7 +164,7 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		logger.Error("Visiting failed:", err)
 	}
 	time.Sleep(3 * time.Second)
-	collector.Wait()
 	logger.Info("Waiting for collector")
+	collector.Wait()
 	return charactere
 }

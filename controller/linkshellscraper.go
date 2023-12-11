@@ -20,22 +20,28 @@ const (
 func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
-		// colly.AllowURLRevisit(),
+		colly.AllowURLRevisit(),
 	)
 	collector.SetRequestTimeout(60 * time.Second)
 	logrus.Infof("Scraping Linkshell %v Worldlinkshell: %v", id, world)
 	if c.proxyfunc != nil {
-		logrus.Info("Using Proxys for scraping linkshell")
+		logrus.Info("Using Proxys for scraping linkshellResponse")
 		collector.SetProxyFunc(c.proxyfunc)
 	}
 	if c.parallel <= 0 {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		if err != nil {
+			logrus.Error("Setting limit failed:", err)
+		}
 	} else {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		if err != nil {
+			logrus.Error("Setting limit failed:", err)
+		}
 	}
-	var linkshell linkshell.Linkshell
-	linkshell.WorldType = world
-	linkshell.ID = id
+	var linkshellResponse linkshell.Linkshell
+	linkshellResponse.WorldType = world
+	linkshellResponse.ID = id
 	// Set error handler
 	collector.OnError(func(r *colly.Response, err error) {
 		collector.OnError(func(r *colly.Response, err error) {
@@ -43,19 +49,33 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 			case 429:
 				logrus.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visit failed:", err)
+				}
 			case 0:
 				logrus.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visit failed:", err)
+				}
 			case 502:
 				logrus.Error("Bad Gateway:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visit failed:", err)
+				}
 			case 404:
 				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 			case 503:
 				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+				time.Sleep(2 * time.Second)
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visit failed:", err)
+				}
 			case 403:
 			default:
 				logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
@@ -63,10 +83,10 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 		})
 	})
 	for _, f := range linkshellHandlers() {
-		collector.OnHTML(f(&linkshell))
+		collector.OnHTML(f(&linkshellResponse))
 	}
 	var MAINURL string
-	if linkshell.WorldType {
+	if linkshellResponse.WorldType {
 		MAINURL = fmt.Sprintf("%v%v%v", URL, WORLDLINKSHELLENDPOINT, id)
 	} else {
 		MAINURL = fmt.Sprintf("%v%v%v", URL, LINKSHELLENDPOINT, id)
@@ -83,7 +103,7 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 		if strings.Contains(e.Request.URL.String(), "member") {
 			for i = 2; i <= tempID; i++ {
 				time.Sleep(time.Duration(rand.Intn(30)) * time.Millisecond)
-				collector.Visit(fmt.Sprintf("%v%d", url, i))
+				err = collector.Visit(fmt.Sprintf("%v%d", url, i))
 				if err != nil {
 					logrus.Println("Visiting failed:", err)
 				}
@@ -98,5 +118,5 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 	logrus.Info("Waiting for Collector")
 	time.Sleep(2 * time.Second)
 	collector.Wait()
-	return linkshell
+	return linkshellResponse
 }

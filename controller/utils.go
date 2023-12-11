@@ -30,7 +30,7 @@ func After(value string, a string) string {
 	if adjustedPos >= len(value) {
 		return ""
 	}
-	return value[adjustedPos:len(value)]
+	return value[adjustedPos:]
 }
 
 func BeforeLast(value string, a string) string {
@@ -43,7 +43,7 @@ func BeforeLast(value string, a string) string {
 }
 
 func Escape(source string) string {
-	var j int = 0
+	var j = 0
 	if len(source) == 0 {
 		return ""
 	}

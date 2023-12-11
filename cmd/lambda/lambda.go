@@ -13,8 +13,8 @@ type Request struct {
 }
 
 func HandleRequest(ctx context.Context, id Request) (character.Character, error) {
-	goxiv := goxiv.GoXIV{}
-	temp := goxiv.ScrapeCharacter(id.ID)
+	scraper := goxiv.GoXIV{}
+	temp := scraper.ScrapeCharacter(id.ID)
 	return temp, nil
 }
 

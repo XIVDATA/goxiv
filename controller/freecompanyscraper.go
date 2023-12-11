@@ -19,7 +19,7 @@ const (
 func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
-		// colly.AllowURLRevisit(),
+		colly.AllowURLRevisit(),
 	)
 	collector.SetRequestTimeout(60 * time.Second)
 	logrus.Infof("Scraping Free Company %v", id)
@@ -37,19 +37,34 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 			case 429:
 				logrus.WithField("URL", r.Request.URL).Error("Too many Requests. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visiting failed:", err)
+				}
 			case 0:
 				logrus.WithField("URL", r.Request.URL).Error("Looks like i/o timeout. Trying again after 2 seconds:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visiting failed:", err)
+
+				}
 			case 502:
 				logrus.Error("Bad Gateway:", err)
 				time.Sleep(2 * time.Second)
-				collector.Visit(r.Request.URL.String())
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visiting failed:", err)
+				}
 			case 404:
 				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 			case 503:
 				logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+				err := collector.Visit(r.Request.URL.String())
+				if err != nil {
+					logrus.Error("Visiting failed:", err)
+
+				}
 			case 403:
 			default:
 				logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
@@ -62,9 +77,15 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	MAINURL := fmt.Sprintf("%v%v%d", URL, FREECOMPANYENDPOINT, id)
 	MEMBERURL := fmt.Sprintf("%v%v%d/member", URL, FREECOMPANYENDPOINT, id)
 	if c.parallel <= 0 {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
+		if err != nil {
+			logrus.Error("Setting limit failed:", err)
+		}
 	} else {
-		collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: c.parallel})
+		if err != nil {
+			logrus.Error("Setting limit failed:", err)
+		}
 	}
 	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
 		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
@@ -76,7 +97,7 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 
 		if strings.Contains(e.Request.URL.String(), "member") {
 			for i = 2; i <= tempID; i++ {
-				collector.Visit(fmt.Sprintf("%v%d", url, i))
+				err = collector.Visit(fmt.Sprintf("%v%d", url, i))
 				if err != nil {
 					logrus.Println("Visiting failed:", err)
 				}
