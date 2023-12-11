@@ -16,7 +16,6 @@ require (
 	github.com/antchfx/xpath v1.2.5 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
