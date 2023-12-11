@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/sirupsen/logrus"
 	"github.com/xivdata/goxiv"
@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Error: ", err)
 	}
-	err = ioutil.WriteFile(fmt.Sprintf("char-%d.json", char.ID), b, 0644)
+	err = os.WriteFile(fmt.Sprintf("char-%d.json", char.ID), b, 0644)
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
@@ -25,7 +25,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Error: ", err)
 	}
-	err = ioutil.WriteFile(fmt.Sprintf("fc-%d.json", fc.ID), b, 0644)
+	err = os.WriteFile(fmt.Sprintf("fc-%d.json", fc.ID), b, 0644)
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
@@ -34,7 +34,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Error: ", err)
 	}
-	err = ioutil.WriteFile(fmt.Sprintf("pvpteam-%v.json", pvpteam.ID), b, 0644)
+	err = os.WriteFile(fmt.Sprintf("pvpteam-%v.json", pvpteam.ID), b, 0644)
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Error: ", err)
 	}
-	err = ioutil.WriteFile(fmt.Sprintf("worldlinkshell-%v.json", worldlinkshell.ID), b, 0644)
+	err = os.WriteFile(fmt.Sprintf("worldlinkshell-%v.json", worldlinkshell.ID), b, 0644)
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}
@@ -52,7 +52,7 @@ func main() {
 	if err != nil {
 		logrus.Error("Error: ", err)
 	}
-	err = ioutil.WriteFile(fmt.Sprintf("linkshell-%v.json", linkshell.ID), b, 0644)
+	err = os.WriteFile(fmt.Sprintf("linkshell-%v.json", linkshell.ID), b, 0644)
 	if err != nil {
 		logrus.Error("Could not write json ", err)
 	}

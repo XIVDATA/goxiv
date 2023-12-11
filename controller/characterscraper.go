@@ -26,7 +26,7 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
 		colly.Async(true),
-		// colly.AllowURLRevisit(),
+		colly.AllowURLRevisit(),
 	)
 	collector.SetRequestTimeout(60 * time.Second)
 	if c.proxyfunc != nil {
@@ -52,7 +52,9 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		case 404:
 			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
 		case 503:
-			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
+			logrus.Debug("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, " Trying again after 2 seconds\nError:", err)
+			time.Sleep(2 * time.Second)
+			collector.Visit(r.Request.URL.String())
 		case 403:
 		default:
 			logrus.Error("Request URL:", r.Request.URL.String(), "failed with response:", r.StatusCode, "\nError:", err)
