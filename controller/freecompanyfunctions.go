@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	LEADERICON = "https://img.finalfantasyxiv.com/lds/h/Z/W5a6yeRyN2eYiaV-AGU7mJKEhs.png"
+	LEADERICON = "https://lds-img.finalfantasyxiv.com/h/Z/W5a6yeRyN2eYiaV-AGU7mJKEhs.png"
 )
 
 func freecompanyNameHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
@@ -27,11 +28,14 @@ func freecompanyServerHandler(data *freecompany.FreeCompany) (string, func(e *co
 	return `p.entry__freecompany__gc:has(i)`, func(e *colly.HTMLElement) {
 		var server model.Server
 		var datacenter model.Datacenter
-		datacenter.Name = Between(e.Text, "(", ")")
-		server.Datacenter = datacenter
-		server.Name = strings.ReplaceAll(strings.ReplaceAll(BeforeLast(e.Text, "("), "\t", ""), "\n", "")
 
+		datacenter.Name = Between(e.Text, "[", "]")
+		server.Datacenter = datacenter
+		re := regexp.MustCompile(`[^a-zA-Z]+`)
+		temp := BeforeLast(e.Text, "[")
+		server.Name = re.ReplaceAllString(temp, "")
 		data.Server = &server
+
 	}
 
 }
@@ -71,14 +75,12 @@ func freecompanyGrandcompanyReputationHandler(data *freecompany.FreeCompany) (st
 }
 
 func freecompanyRankHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
-	return `h3.heading--lead:contains("Rank")`, func(e *colly.HTMLElement) {
-		if e.Text == "Rank" {
-			rank, err := strconv.ParseInt(e.DOM.NextFiltered("p.freecompany__text").Text(), 10, 64)
-			if err != nil {
-				logrus.Error("Error while parsing rank ")
-			}
-			data.Rank = rank
+	return `h3.heading--lead:contains("Rank"),h3.heading--lead:contains("Rang"),h3.heading--lead:contains("ランク")`, func(e *colly.HTMLElement) {
+		rank, err := strconv.ParseInt(e.DOM.NextFiltered("p.freecompany__text").Text(), 10, 64)
+		if err != nil {
+			logrus.Error("Error while parsing rank ")
 		}
+		data.Rank = rank
 
 	}
 
@@ -242,7 +244,6 @@ func freecompanyMemberHandler(data *freecompany.FreeCompany) (string, func(e *co
 			data.LeaderURL = e.Attr("href")
 		}
 	}
-
 }
 func freecompanyAcceptsHandler(data *freecompany.FreeCompany) (string, func(e *colly.HTMLElement)) {
 	return `p.freecompany__recruitment`, func(e *colly.HTMLElement) {

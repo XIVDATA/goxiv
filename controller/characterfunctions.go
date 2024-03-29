@@ -27,6 +27,7 @@ func characterTitleHandler(data *character.Character) (string, func(e *colly.HTM
 
 func characterServerDatacenterHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
 	return "p.frame__chara__world", func(e *colly.HTMLElement) {
+
 		var server model.Server
 		var datacenter model.Datacenter
 		datacenter.Name = Between(e.Text, "[", "]")
@@ -98,7 +99,7 @@ func characterBioHandler(data *character.Character) (string, func(e *colly.HTMLE
 }
 
 func characterTraitHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
-	return `p.character-block__title:contains("Race/Clan/Gender")`, func(e *colly.HTMLElement) {
+	return `p.character-block__title:contains("Race/Clan/Gender"),p.character-block__title:contains("Volk / Stamm / Geschlecht"),p.character-block__title:contains("Race / Ethnie / Sexe"),p.character-block__title:contains("種族/部族/性別")`, func(e *colly.HTMLElement) {
 		temp, _ := e.DOM.Siblings().Html()
 		if strings.Contains(temp, "♀") {
 			data.Sex = "♀"
@@ -113,7 +114,7 @@ func characterTraitHandler(data *character.Character) (string, func(e *colly.HTM
 }
 
 func characterCitystageHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
-	return `p.character-block__title:contains("City-state")`, func(e *colly.HTMLElement) {
+	return `p.character-block__title:contains("City-state"),p.character-block__title:contains("Stadtstaat"),p.character-block__title:contains("Cité de départ"),p.character-block__title:contains("開始都市")`, func(e *colly.HTMLElement) {
 		data.Citystate = e.DOM.Siblings().Text()
 	}
 }
@@ -125,7 +126,7 @@ func characterNamedayHandler(data *character.Character) (string, func(e *colly.H
 
 }
 func characterGuardianHandler(data *character.Character) (string, func(e *colly.HTMLElement)) {
-	return `p.character-block__title:contains("Guardian")`, func(e *colly.HTMLElement) {
+	return `p.character-block__title:contains("Guardian"),p.character-block__title:contains("Schutzgott"),p.character-block__title:contains("Divinité"),p.character-block__title:contains("守護神")`, func(e *colly.HTMLElement) {
 		temp := e.DOM.SiblingsFiltered("p.character-block__name").Text()
 		data.Guardian = temp
 	}
@@ -151,7 +152,7 @@ func characterClassSpecialistHandler(data *character.Character) (string, func(e 
 			} else {
 				work := BeforeLast(exp, " /")
 				if work != "--" {
-					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
+					tempexp, err := strconv.ParseInt(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(work, ",", ""), ".", ""), " ", ""), 10, 64)
 					if err != nil {
 						logrus.Error("Error while parsing EXP ", work, data.ID)
 					}
@@ -185,19 +186,22 @@ func characterClassHandler(data *character.Character) (string, func(e *colly.HTM
 			exp := e.DOM.SiblingsFiltered("div.character__job__exp").Text()
 			work := BeforeLast(exp, " /")
 			var class character.Class
-			if work == "--" && (strings.Contains(e.Text, "Blue Mage") || level == "90") {
+			if work == "--" && ((strings.Contains(e.Text, "Blue Mage") || strings.Contains(e.Text, "Blaumagier") || strings.Contains(e.Text, "Mage bleu") || strings.Contains(e.Text, "青魔道士")) || level == "90") {
 				class.Max = true
 				class.Name = e.Text
-				if strings.Contains(e.Text, "Blue Mage") {
-					class.Level = 70
-					class.Name = "Blue Mage"
+				if strings.Contains(e.Text, "Blue Mage") || strings.Contains(e.Text, "Blaumagier") || strings.Contains(e.Text, "Mage bleu") || strings.Contains(e.Text, "青魔道士") {
+					class.Level = 80
+					class.Name = BeforeFirst(e.Text, "(")
+					if class.Name == "" {
+						class.Name = BeforeFirst(e.Text, "[")
+					}
 				} else {
 					class.Level = 90
 				}
 			} else {
 				work := BeforeLast(exp, " /")
 				if work != "--" {
-					tempexp, err := strconv.ParseInt(strings.ReplaceAll(work, ",", ""), 10, 64)
+					tempexp, err := strconv.ParseInt(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(work, ",", ""), ".", ""), " ", ""), 10, 64)
 					if err != nil {
 						logrus.Error("Error while parsing EXP ", work, data.ID)
 					}
@@ -211,8 +215,11 @@ func characterClassHandler(data *character.Character) (string, func(e *colly.HTM
 					logrus.Error("Error while parsing level")
 				}
 				class.Level = templevel
-				if strings.Contains(e.Text, "Blue Mage") {
-					class.Name = "Blue Mage"
+				if strings.Contains(e.Text, "Blue Mage") || strings.Contains(e.Text, "Blaumagier") || strings.Contains(e.Text, "Mage bleu") || strings.Contains(e.Text, "青魔道士") {
+					class.Name = BeforeFirst(e.Text, "(")
+					if class.Name == "" {
+						class.Name = BeforeFirst(e.Text, "[")
+					}
 				} else {
 					class.Name = e.Text
 				}
@@ -236,7 +243,7 @@ func characterBozjaHandler(data *character.Character) (string, func(e *colly.HTM
 		var temp character.Bozja
 		if strings.ReplaceAll(exp, ",", "") != "--" {
 
-			tempexp, err := strconv.ParseInt(strings.ReplaceAll(exp, ",", ""), 10, 64)
+			tempexp, err := strconv.ParseInt(strings.ReplaceAll(strings.ReplaceAll(exp, ",", ""), ".", ""), 10, 64)
 			if err != nil {
 				logrus.Error("Error while parsing EXP ", exp)
 			}
@@ -259,7 +266,7 @@ func characterEurekaHandler(data *character.Character) (string, func(e *colly.HT
 		var temp character.Eureka
 		if strings.ReplaceAll(exp, ",", "") != "--" {
 
-			tempexp, err := strconv.ParseInt(strings.ReplaceAll(exp, ",", ""), 10, 64)
+			tempexp, err := strconv.ParseInt(strings.ReplaceAll(strings.ReplaceAll(exp, ",", ""), ".", ""), 10, 64)
 			if err != nil {
 				logrus.Error("Error while parsing EXP ", exp)
 			}
@@ -318,7 +325,14 @@ func characterAchievementHandler(data *character.Character) (string, func(e *col
 		}
 		achievement.Unlocked = time.Unix(tempTime, 0)
 		achievement.ID = tempID
-		achievement.Name = After(BeforeLast(e.ChildText("p.entry__activity__txt"), "\""), "\"")
+		tempName := After(BeforeLast(e.ChildText("p.entry__activity__txt"), "\""), "\"")
+		if tempName == "" {
+			tempName = BeforeFirst(e.ChildText("p.entry__activity__txt"), " aus der Kategorie „")
+		}
+		if tempName == "" {
+			tempName = After(BeforeLast(e.ChildText("p.entry__activity__txt"), "」"), "「")
+		}
+		achievement.Name = tempName
 		data.Achievements = append(data.Achievements, achievement)
 	}
 

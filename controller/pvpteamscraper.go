@@ -14,7 +14,7 @@ const (
 	PVPTEAMENDPOINT = "/lodestone/pvpteam/"
 )
 
-func (c Controller) ScrapePvPTeam(id string) pvpteam.PvPTeam {
+func (c Controller) ScrapePvPTeam(id string, lang string) pvpteam.PvPTeam {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
 		colly.AllowURLRevisit(),
@@ -80,7 +80,7 @@ func (c Controller) ScrapePvPTeam(id string) pvpteam.PvPTeam {
 	for _, f := range pvpTeamHandlers() {
 		collector.OnHTML(f(&pvpteamResponse))
 	}
-	MAINURL := fmt.Sprintf("%v%v%v", URL, PVPTEAMENDPOINT, id)
+	MAINURL := fmt.Sprintf("%v%v%v", fmt.Sprintf(URL, lang), PVPTEAMENDPOINT, id)
 	//Command to visit the website
 	err := collector.Visit(MAINURL)
 	if err != nil {

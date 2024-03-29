@@ -17,7 +17,7 @@ const (
 	CHARACTERENDPOINT = "/lodestone/character/"
 )
 
-func (c Controller) ScrapeCharacter(id int64) character.Character {
+func (c Controller) ShallowScrapeCharacter(id int64) character.Character {
 	if id == 0 {
 		return character.Character{}
 	}
@@ -27,6 +27,26 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		colly.MaxDepth(2),
 		colly.Async(true),
 		colly.AllowURLRevisit(),
+		colly.TraceHTTP(),
+	)
+	var charactere character.Character
+	charactere.ID = id
+	logger.Info("Waiting for collector")
+	collector.Wait()
+	return charactere
+}
+
+func (c Controller) ScrapeCharacter(id int64, lang string) character.Character {
+	if id == 0 {
+		return character.Character{}
+	}
+	logger := logrus.WithField("character", id)
+	logrus.Infof("Scraping Character %v", id)
+	collector := colly.NewCollector(
+		colly.MaxDepth(2),
+		colly.Async(true),
+		colly.AllowURLRevisit(),
+		colly.TraceHTTP(),
 	)
 	collector.SetRequestTimeout(60 * time.Second)
 	if c.proxyfunc != nil {
@@ -84,8 +104,9 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		}
 	}
 	collector.OnRequest(func(r *colly.Request) {
+
 		logger.Debugf("Visiting %s", r.URL.String())
-		if !(strings.Contains(r.URL.String(), "friend") || strings.Contains(r.URL.String(), "achievement") || r.URL.String() == fmt.Sprintf("%v%v%d", URL, CHARACTERENDPOINT, id)) {
+		if !(strings.Contains(r.URL.String(), "friend") || strings.Contains(r.URL.String(), "achievement") || r.URL.String() == fmt.Sprintf("%v%v%d", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)) {
 			r.Headers.Set("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1")
 		}
 	})
@@ -97,7 +118,7 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 		Expires: expire,
 	}
 	temp = append(temp, &cookie)
-	err := collector.SetCookies(URL, temp)
+	err := collector.SetCookies(fmt.Sprintf(URL, lang), temp)
 	if err != nil {
 		return character.Character{}
 	}
@@ -107,17 +128,22 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 	for _, f := range characterHandlers() {
 		collector.OnHTML(f(&charactere))
 	}
-	MAINURL := fmt.Sprintf("%v%v%d", URL, CHARACTERENDPOINT, id)
-	CLASSURL := fmt.Sprintf("%v%v%d/class_job", URL, CHARACTERENDPOINT, id)
-	MINIONURL := fmt.Sprintf("%v%v%d/minion", URL, CHARACTERENDPOINT, id)
-	MOUNTURL := fmt.Sprintf("%v%v%d/mount", URL, CHARACTERENDPOINT, id)
-	ACHIEVEMENTURL := fmt.Sprintf("%v%v%d/achievement", URL, CHARACTERENDPOINT, id)
-	FRIENDURL := fmt.Sprintf("%v%v%d/friend", URL, CHARACTERENDPOINT, id)
+	MAINURL := fmt.Sprintf("%v%v%d", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
+	CLASSURL := fmt.Sprintf("%v%v%d/class_job", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
+	MINIONURL := fmt.Sprintf("%v%v%d/minion", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
+	MOUNTURL := fmt.Sprintf("%v%v%d/mount", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
+	ACHIEVEMENTURL := fmt.Sprintf("%v%v%d/achievement", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
+	FRIENDURL := fmt.Sprintf("%v%v%d/friend", fmt.Sprintf(URL, lang), CHARACTERENDPOINT, id)
 	// Set error handler
+	achievements := false
+	friends := false
 	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
-		if strings.Contains(e.Text, "Page 1 of") {
+		if (strings.Contains(e.Request.URL.String(), "achievement") && achievements) || (strings.Contains(e.Request.URL.String(), "friend") && friends) {
+			return
+		}
+		if strings.Contains(e.Text, "Page 1 of") || strings.Contains(e.Text, "Seite 1 (von") || strings.Contains(e.Text, "Page 1 ") || strings.Contains(e.Text, "1ページ") {
+			tempID, err := strconv.ParseInt(strings.ReplaceAll(After(strings.ReplaceAll(strings.ReplaceAll(e.Text, "ページ", ""), "/", " "), " "), ")", ""), 10, 0)
 
-			tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
 			if err != nil {
 				logrus.Error("Error while parsing ID ", tempID)
 			}
@@ -126,8 +152,10 @@ func (c Controller) ScrapeCharacter(id int64) character.Character {
 
 			if strings.Contains(e.Request.URL.String(), "achievement") {
 				url = fmt.Sprintf("%v/?page=", ACHIEVEMENTURL)
+				achievements = true
 			} else if strings.Contains(e.Request.URL.String(), "friend") {
 				url = fmt.Sprintf("%v/?page=", FRIENDURL)
+				friends = true
 			}
 			for i = 2; i <= tempID; i++ {
 				// time.Sleep(time.Duration(rand.Intn(3)) * time.Second)

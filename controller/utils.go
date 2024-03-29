@@ -41,7 +41,14 @@ func BeforeLast(value string, a string) string {
 	}
 	return value[:pos]
 }
-
+func BeforeFirst(value string, a string) string {
+	// Get substring after a string.
+	pos := strings.Index(value, a)
+	if pos == -1 {
+		return ""
+	}
+	return value[:pos]
+}
 func Escape(source string) string {
 	var j = 0
 	if len(source) == 0 {

@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	URL                 = "http://eu.finalfantasyxiv.com"
+	URL                 = "http://%v.finalfantasyxiv.com"
 	FREECOMPANYENDPOINT = "/lodestone/freecompany/"
 )
 
-func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
+func (c Controller) ScrapeFreecompany(id uint64, lang string) freecompany.FreeCompany {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
 		colly.AllowURLRevisit(),
@@ -74,8 +74,8 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 	for _, f := range freecompanyHandlers() {
 		collector.OnHTML(f(&company))
 	}
-	MAINURL := fmt.Sprintf("%v%v%d", URL, FREECOMPANYENDPOINT, id)
-	MEMBERURL := fmt.Sprintf("%v%v%d/member", URL, FREECOMPANYENDPOINT, id)
+	MAINURL := fmt.Sprintf("%v%v%d", fmt.Sprintf(URL, lang), FREECOMPANYENDPOINT, id)
+	MEMBERURL := fmt.Sprintf("%v%v%d/member", fmt.Sprintf(URL, lang), FREECOMPANYENDPOINT, id)
 	if c.parallel <= 0 {
 		err := collector.Limit(&colly.LimitRule{DomainGlob: "*", Parallelism: 3})
 		if err != nil {
@@ -87,8 +87,13 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 			logrus.Error("Setting limit failed:", err)
 		}
 	}
+	members := false
+
 	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
-		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
+		if members {
+			return
+		}
+		tempID, err := strconv.ParseInt(strings.ReplaceAll(After(After(strings.ReplaceAll(e.Text, "ページ", ""), "/"), " "), ")", ""), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
 		}
@@ -102,6 +107,7 @@ func (c Controller) ScrapeFreecompany(id uint64) freecompany.FreeCompany {
 					logrus.Println("Visiting failed:", err)
 				}
 			}
+			members = true
 		}
 	})
 

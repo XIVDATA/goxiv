@@ -14,7 +14,7 @@ type Request struct {
 
 func HandleRequest(ctx context.Context, id Request) (character.Character, error) {
 	scraper := goxiv.GoXIV{}
-	temp := scraper.ScrapeCharacter(id.ID)
+	temp := scraper.ScrapeCharacter(id.ID, "eu")
 	return temp, nil
 }
 

@@ -17,7 +17,7 @@ const (
 	WORLDLINKSHELLENDPOINT = "/lodestone/crossworld_linkshell/"
 )
 
-func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
+func (c Controller) ScrapeLinkshell(id string, world bool, lang string) linkshell.Linkshell {
 	collector := colly.NewCollector(
 		colly.MaxDepth(2),
 		colly.AllowURLRevisit(),
@@ -87,13 +87,13 @@ func (c Controller) ScrapeLinkshell(id string, world bool) linkshell.Linkshell {
 	}
 	var MAINURL string
 	if linkshellResponse.WorldType {
-		MAINURL = fmt.Sprintf("%v%v%v", URL, WORLDLINKSHELLENDPOINT, id)
+		MAINURL = fmt.Sprintf("%v%v%v", fmt.Sprintf(URL, lang), WORLDLINKSHELLENDPOINT, id)
 	} else {
-		MAINURL = fmt.Sprintf("%v%v%v", URL, LINKSHELLENDPOINT, id)
+		MAINURL = fmt.Sprintf("%v%v%v", fmt.Sprintf(URL, lang), LINKSHELLENDPOINT, id)
 	}
 
 	collector.OnHTML("li.btn__pager__current", func(e *colly.HTMLElement) {
-		tempID, err := strconv.ParseInt(After(e.Text, " "), 10, 0)
+		tempID, err := strconv.ParseInt(strings.ReplaceAll(After(e.Text, " "), ")", ""), 10, 0)
 		if err != nil {
 			logrus.Error("Error while parsing ID ", tempID)
 		}
