@@ -15,6 +15,8 @@ type Item struct {
 	Materia5    *Materia `json:",omitempty"`
 	Color       string   `json:",omitempty"`
 	ColorID     int64    `json:",omitempty"`
+	Color2      string   `json:",omitempty"`
+	Color2ID    int64    `json:",omitempty"`
 	Slot        string
 	HQ          bool
 }

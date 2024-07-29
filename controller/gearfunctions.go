@@ -23,8 +23,17 @@ func scrapeItem(item *gear.Item, selector string) (string, func(e *colly.HTMLEle
 		item.Name = name
 		miragename := e.ChildText("div.db-tooltip__item__mirage")
 		item.Mirage = miragename
-		stain := e.ChildText("div.stain")
-		item.Color = stain
+
+		stains := e.ChildTexts("div.stain")
+		switch len(stains) {
+		case 0:
+		case 1:
+			item.Color = stains[0]
+		case 2:
+			item.Color2 = stains[1]
+			item.Color = stains[0]
+
+		}
 		e.ForEach("div.db-tooltip__materia__txt", func(i int, e *colly.HTMLElement) {
 			text, _ := e.DOM.Html()
 			materianame := strings.Split(strings.ReplaceAll(text, "&#39;", "'"), "<br/>")[0]
